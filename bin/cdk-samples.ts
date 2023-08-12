@@ -6,5 +6,5 @@ import { SubnetStack } from '../lib/SubnetStack'
 
 const app = new cdk.App()
 const vpcStack = new VPCStack(app, 'VPCStack')
-new SubnetStack(app, 'SubnetStack', vpcStack.vpc)
+// new SubnetStack(app, 'SubnetStack', vpcStack.vpc)
 
