@@ -3,7 +3,7 @@ import { CfnResource, Stack } from 'aws-cdk-lib'
 export const region = 'ap-northeast-1'
 export const availabilityZones = [`${region}a`, `${region}c`, `${region}d`]
 
-export const getProfile = (stack: Stack): any => {
+export const getProfile = (stack: Stack): Profile => {
   // --context profile=xxx が指定されてなかったらデフォルト値 dev にする
   const profileStr = stack.node.tryGetContext('profile') ?? 'dev'
   // xxx もしくはdevとかで cdk.json から設定をとる
@@ -15,3 +15,7 @@ export const getProfile = (stack: Stack): any => {
 }
 
 export const toRefs = (instances: CfnResource[]): string[] => instances.map((instance) => instance.ref)
+
+export type Profile = {
+  name: string
+}
