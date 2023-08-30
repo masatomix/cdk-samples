@@ -1,0 +1,195 @@
+Resources:
+  ELBSecurityGroupdev20230827:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: elb-sg
+      GroupName: elb-sg-dev-20230827
+      Tags:
+        - Key: Name
+          Value: ELB-SecurityGroup-dev-20230827
+      VpcId:
+        Fn::ImportValue: VPCStack:ExportsOutputFnGetAttMyVPCVpcIdF2BB1C6C
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/ELBSecurityGroup-dev-20230827
+  ELBSecurityGroupIngress000:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId:
+        Ref: ELBSecurityGroupdev20230827
+      IpProtocol: "-1"
+      SourceSecurityGroupId:
+        Ref: ELBSecurityGroupdev20230827
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/ELBSecurityGroupIngress000
+  ELBSecurityGroupIngress001:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      CidrIp: 0.0.0.0/0
+      FromPort: 8080
+      GroupId:
+        Ref: ELBSecurityGroupdev20230827
+      IpProtocol: tcp
+      ToPort: 8088
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/ELBSecurityGroupIngress001
+  ELBSecurityGroupIngress002:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      CidrIp: 0.0.0.0/0
+      FromPort: 9080
+      GroupId:
+        Ref: ELBSecurityGroupdev20230827
+      IpProtocol: tcp
+      ToPort: 9088
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/ELBSecurityGroupIngress002
+  ECSSecurityGroupdev20230827:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ecs-sg
+      GroupName: ecs-sg-dev-20230827
+      Tags:
+        - Key: Name
+          Value: ECS-SecurityGroup-dev-20230827
+      VpcId:
+        Fn::ImportValue: VPCStack:ExportsOutputFnGetAttMyVPCVpcIdF2BB1C6C
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/ECSSecurityGroup-dev-20230827
+  ECSSecurityGroupIngress000:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId:
+        Ref: ECSSecurityGroupdev20230827
+      IpProtocol: "-1"
+      SourceSecurityGroupId:
+        Ref: ECSSecurityGroupdev20230827
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/ECSSecurityGroupIngress000
+  ECSSecurityGroupIngress001:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId:
+        Ref: ECSSecurityGroupdev20230827
+      IpProtocol: "-1"
+      SourceSecurityGroupId:
+        Ref: ELBSecurityGroupdev20230827
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/ECSSecurityGroupIngress001
+  ECSSecurityGroupIngress002:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      CidrIp: 192.168.0.0/16
+      GroupId:
+        Ref: ECSSecurityGroupdev20230827
+      IpProtocol: "-1"
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/ECSSecurityGroupIngress002
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/12NMQ7CMAxFz8KemCoSUvcOiLU9ACqJQW7BRnYCqqreva3YmN7X+8MLUNdQHfqv+ZhG/6QbzF3u4+g2dcUYYG7u3GEsSnk6q5S3+xcXfiiaLfvRoknRiPtuhBNlEl4cS0IY7PgJFZy23mBEXgtneiG0P652bkCNiwAAAA==
+    Metadata:
+      aws:cdk:path: ECSSecurityGroupStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Outputs:
+  ExportsOutputRefELBSecurityGroupdev20230827C25BCA80:
+    Value:
+      Ref: ELBSecurityGroupdev20230827
+    Export:
+      Name: ECSSecurityGroupStack:ExportsOutputRefELBSecurityGroupdev20230827C25BCA80
+  ExportsOutputRefECSSecurityGroupdev20230827B1B6080B:
+    Value:
+      Ref: ECSSecurityGroupdev20230827
+    Export:
+      Name: ECSSecurityGroupStack:ExportsOutputRefECSSecurityGroupdev20230827B1B6080B
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+

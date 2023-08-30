@@ -1,7 +1,6 @@
 import { App, ScopedAws, Stack, StackProps } from 'aws-cdk-lib'
-import { getProfile } from './Utils'
+import { ContainerInfo, getProfile } from './Utils'
 import { CfnTaskDefinition } from 'aws-cdk-lib/aws-ecs'
-import { ContainerInfo } from './ECSServiceELBStack'
 import { ECSRoleStack } from './ECSRoleStack'
 
 export class AppTaskdefinitionStack extends Stack {
@@ -19,7 +18,7 @@ export class AppTaskdefinitionStack extends Stack {
     // })
 
     this.taskDef = new CfnTaskDefinition(this, 'ECSTaskDefinition', {
-      family: `app-taskdefinition${p.name}`,
+      family: `${containerInfo.name}-taskdefinition${p.name}`,
       containerDefinitions: [
         {
           essential: true,

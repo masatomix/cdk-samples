@@ -1,0 +1,119 @@
+Resources:
+  appNLBdev20230827:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: app-NLB-dev-20230827
+      Scheme: internet-facing
+      SecurityGroups:
+        - Fn::ImportValue: ECSSecurityGroupStack:ExportsOutputRefELBSecurityGroupdev20230827C25BCA80
+      Subnets:
+        - Fn::ImportValue: VPCStack:ExportsOutputRefMyPublicSubnet000D6AA5E
+        - Fn::ImportValue: VPCStack:ExportsOutputRefMyPublicSubnet1ACD6212C
+        - Fn::ImportValue: VPCStack:ExportsOutputRefMyPublicSubnet28D7EAC79
+      Type: application
+    Metadata:
+      aws:cdk:path: ELBStack/app-NLB-dev-20230827
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/yXNsQ7CMAwE0G9hT0wVCakzXZnKByDXMchtcKQ4bQfEvxNguru3XIC+h+6Au3mKi08ywetakRbX6MYJrQqljHHChEqijy3AcNdLo/OPuLi2R7a8FuJvH7JGqZL17TRHhtmOW+jg1H5mE/Fl1SpPhvGfHyYfJHuDAAAA
+    Metadata:
+      aws:cdk:path: ELBStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Outputs:
+  ExportsOutputRefappNLBdev2023082763723A82:
+    Value:
+      Ref: appNLBdev20230827
+    Export:
+      Name: ELBStack:ExportsOutputRefappNLBdev2023082763723A82
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+

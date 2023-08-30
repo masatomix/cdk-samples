@@ -12,48 +12,34 @@ export class ELBStack extends Stack {
     id: string,
     subnets: CfnSubnet[],
     elbSecuriyGroup: CfnSecurityGroup,
-    nlbFlag: boolean = false,
+    albFlag: boolean = true,
+    internetFlag: boolean = true,
     props?: StackProps,
   ) {
     super(scope, id, props)
     const p = getProfile(this)
 
-    this.loadbalancer = nlbFlag
-      ? createNLB(this, 'app-NLB', subnets, [elbSecuriyGroup], p)
-      : createALB(this, 'app-NLB', subnets, [elbSecuriyGroup], p)
+    const type = albFlag ? 'application' : 'network'
+    const scheme = internetFlag ? 'internet-facing' : 'internal'
+
+    this.loadbalancer = createELB(this, 'app-ELB', type, scheme, subnets, [elbSecuriyGroup], p)
+    console.log(this.loadbalancer.attrDnsName)
   }
 }
-
-// const scheme = 'internal'
-const scheme = 'internet-facing'
-const createNLB = (
+const createELB = (
   stack: Stack,
   name: string,
+  type: string,
+  scheme: string,
   subnets: CfnSubnet[],
   elbsgs: CfnSecurityGroup[],
   p: Profile,
 ): CfnLoadBalancer => {
   return new CfnLoadBalancer(stack, `${name}${p.name}`, {
-    type: 'network',
+    type,
     name: `${name}${p.name}`,
     subnets: toRefs(subnets),
     securityGroups: toRefs(elbsgs),
-    scheme: scheme,
-  })
-}
-
-const createALB = (
-  stack: Stack,
-  name: string,
-  subnets: CfnSubnet[],
-  elbsgs: CfnSecurityGroup[],
-  p: Profile,
-): CfnLoadBalancer => {
-  return new CfnLoadBalancer(stack, `${name}${p.name}`, {
-    type: 'application',
-    name: `${name}${p.name}`,
-    subnets: toRefs(subnets),
-    securityGroups: toRefs(elbsgs),
-    scheme: scheme,
+    scheme,
   })
 }

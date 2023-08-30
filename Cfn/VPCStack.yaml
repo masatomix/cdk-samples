@@ -1,0 +1,442 @@
+Resources:
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 192.168.0.0/16
+      Tags:
+        - Key: Name
+          Value: vpc-dev-20230827
+    Metadata:
+      aws:cdk:path: VPCStack/MyVPC
+  MyPublicSubnet0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-northeast-1a
+      CidrBlock: 192.168.0.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: public-subnet-0-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/MyPublicSubnet0
+  MyPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-northeast-1c
+      CidrBlock: 192.168.2.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: public-subnet-1-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/MyPublicSubnet1
+  MyPublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-northeast-1d
+      CidrBlock: 192.168.4.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: public-subnet-2-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/MyPublicSubnet2
+  MyPrivateSubnet0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-northeast-1a
+      CidrBlock: 192.168.1.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: private-subnet-0-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/MyPrivateSubnet0
+  MyPrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-northeast-1c
+      CidrBlock: 192.168.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: private-subnet-1-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/MyPrivateSubnet1
+  MyPrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-northeast-1d
+      CidrBlock: 192.168.5.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: private-subnet-2-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/MyPrivateSubnet2
+  MyInternetGateWay:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: igw-dev-20230827
+    Metadata:
+      aws:cdk:path: VPCStack/MyInternetGateWay
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: MyInternetGateWay
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/AttachGateway
+  PublicRouteTable0:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: public-route-0-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/PublicRouteTable0
+  PublicRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: public-route-1-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/PublicRouteTable1
+  PublicRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: public-route-2-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/PublicRouteTable2
+  PrivateRouteTable0:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: private-route-0-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/PrivateRouteTable0
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: private-route-1-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/PrivateRouteTable1
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: private-route-2-dev-20230827
+      VpcId:
+        Ref: MyVPC
+    Metadata:
+      aws:cdk:path: VPCStack/PrivateRouteTable2
+  PublicSubnetRouteTableAssociation0:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PublicRouteTable0
+      SubnetId:
+        Ref: MyPublicSubnet0
+    Metadata:
+      aws:cdk:path: VPCStack/PublicSubnetRouteTableAssociation0
+  PublicRouteToIGW0:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: MyInternetGateWay
+      RouteTableId:
+        Ref: PublicRouteTable0
+    Metadata:
+      aws:cdk:path: VPCStack/PublicRouteToIGW0
+  PrivateSubnetRouteTableAssociation0:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PrivateRouteTable0
+      SubnetId:
+        Ref: MyPrivateSubnet0
+    Metadata:
+      aws:cdk:path: VPCStack/PrivateSubnetRouteTableAssociation0
+  PublicSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PublicRouteTable1
+      SubnetId:
+        Ref: MyPublicSubnet1
+    Metadata:
+      aws:cdk:path: VPCStack/PublicSubnetRouteTableAssociation1
+  PublicRouteToIGW1:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: MyInternetGateWay
+      RouteTableId:
+        Ref: PublicRouteTable1
+    Metadata:
+      aws:cdk:path: VPCStack/PublicRouteToIGW1
+  PrivateSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PrivateRouteTable1
+      SubnetId:
+        Ref: MyPrivateSubnet1
+    Metadata:
+      aws:cdk:path: VPCStack/PrivateSubnetRouteTableAssociation1
+  PublicSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PublicRouteTable2
+      SubnetId:
+        Ref: MyPublicSubnet2
+    Metadata:
+      aws:cdk:path: VPCStack/PublicSubnetRouteTableAssociation2
+  PublicRouteToIGW2:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: MyInternetGateWay
+      RouteTableId:
+        Ref: PublicRouteTable2
+    Metadata:
+      aws:cdk:path: VPCStack/PublicRouteToIGW2
+  PrivateSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: PrivateRouteTable2
+      SubnetId:
+        Ref: MyPrivateSubnet2
+    Metadata:
+      aws:cdk:path: VPCStack/PrivateSubnetRouteTableAssociation2
+  EIPforNatGw1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+    Metadata:
+      aws:cdk:path: VPCStack/EIPforNatGw1
+  MyNAT1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - EIPforNatGw1
+          - AllocationId
+      SubnetId:
+        Ref: MyPublicSubnet0
+      Tags:
+        - Key: Name
+          Value: natgw-dev-20230827
+    DependsOn:
+      - AttachGateway
+    Metadata:
+      aws:cdk:path: VPCStack/MyNAT1
+  RouteToNAT0:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: MyNAT1
+      RouteTableId:
+        Ref: PrivateRouteTable0
+    Metadata:
+      aws:cdk:path: VPCStack/RouteToNAT0
+  RouteToNAT1:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: MyNAT1
+      RouteTableId:
+        Ref: PrivateRouteTable1
+    Metadata:
+      aws:cdk:path: VPCStack/RouteToNAT1
+  RouteToNAT2:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: MyNAT1
+      RouteTableId:
+        Ref: PrivateRouteTable2
+    Metadata:
+      aws:cdk:path: VPCStack/RouteToNAT2
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/0WPTwuDMAzFP8vutRNB8CoyhpchOnYdtWas/knBppMhfve1us3Te0l+eSERTxIeHsRkAtl0Qa9qPlckZMdc6w4y4nP2wFuRMSeVrRHIuxwJRufPgmASb7Yx3yolF/AcAFe01JbgKuoe9oi9lxqjpRKkNP5hb0554eUifieWdQxG21GuRKaxUX5vYagb4K05vqKQx+6b1igVjBZJDcDLTT/2alyq6QAAAA==
+    Metadata:
+      aws:cdk:path: VPCStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Outputs:
+  ExportsOutputFnGetAttMyVPCVpcIdF2BB1C6C:
+    Value:
+      Fn::GetAtt:
+        - MyVPC
+        - VpcId
+    Export:
+      Name: VPCStack:ExportsOutputFnGetAttMyVPCVpcIdF2BB1C6C
+  ExportsOutputRefMyPublicSubnet000D6AA5E:
+    Value:
+      Ref: MyPublicSubnet0
+    Export:
+      Name: VPCStack:ExportsOutputRefMyPublicSubnet000D6AA5E
+  ExportsOutputRefMyPublicSubnet1ACD6212C:
+    Value:
+      Ref: MyPublicSubnet1
+    Export:
+      Name: VPCStack:ExportsOutputRefMyPublicSubnet1ACD6212C
+  ExportsOutputRefMyPublicSubnet28D7EAC79:
+    Value:
+      Ref: MyPublicSubnet2
+    Export:
+      Name: VPCStack:ExportsOutputRefMyPublicSubnet28D7EAC79
+  ExportsOutputRefMyVPC3A1A60EC:
+    Value:
+      Ref: MyVPC
+    Export:
+      Name: VPCStack:ExportsOutputRefMyVPC3A1A60EC
+  ExportsOutputRefMyPrivateSubnet0FE2BC9F9:
+    Value:
+      Ref: MyPrivateSubnet0
+    Export:
+      Name: VPCStack:ExportsOutputRefMyPrivateSubnet0FE2BC9F9
+  ExportsOutputRefMyPrivateSubnet1B5A3615E:
+    Value:
+      Ref: MyPrivateSubnet1
+    Export:
+      Name: VPCStack:ExportsOutputRefMyPrivateSubnet1B5A3615E
+  ExportsOutputRefMyPrivateSubnet259F07501:
+    Value:
+      Ref: MyPrivateSubnet2
+    Export:
+      Name: VPCStack:ExportsOutputRefMyPrivateSubnet259F07501
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+

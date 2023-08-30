@@ -1,0 +1,144 @@
+Resources:
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      CapacityProviderStrategy:
+        - Base: 0
+          CapacityProvider: FARGATE
+          Weight: 1
+      Cluster:
+        Fn::ImportValue: ClusterStack:ExportsOutputRefappserverdev20230827clusterDEE06F59
+      DeploymentConfiguration:
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DeploymentController:
+        Type: ECS
+      DesiredCount: 3
+      EnableECSManagedTags: true
+      LoadBalancers:
+        - ContainerName: app
+          ContainerPort: 80
+          TargetGroupArn:
+            Fn::ImportValue: ECSServiceELBStack:ExportsOutputRefTargetGroup3EEB09E5
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - Fn::ImportValue: ECSSecurityGroupStack:ExportsOutputRefECSSecurityGroupdev20230827B1B6080B
+          Subnets:
+            - Fn::ImportValue: VPCStack:ExportsOutputRefMyPrivateSubnet0FE2BC9F9
+            - Fn::ImportValue: VPCStack:ExportsOutputRefMyPrivateSubnet1B5A3615E
+            - Fn::ImportValue: VPCStack:ExportsOutputRefMyPrivateSubnet259F07501
+      PlatformVersion: LATEST
+      SchedulingStrategy: REPLICA
+      ServiceConnectConfiguration:
+        Enabled: false
+      ServiceName: app-service
+      Tags:
+        - Key: Name
+          Value: ECS-dev-20230827
+      TaskDefinition:
+        Fn::ImportValue: AppTaskdefinitionStack:ExportsOutputRefECSTaskDefinitionA88EDAF0
+    Metadata:
+      aws:cdk:path: AppServiceStack/ECSService
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/yWMSwqAIBBAz9JeJxGC9t0gDxClE0yfERyzRXT3hFbv8RbPQt+DaeZbtA+7PmiBx+XZ76qmCb3AsLLDVMijqjqixCv9PkQOlCnyqzgGhE3aYg109bcJkU4XZzoRxp8f451UlGsAAAA=
+    Metadata:
+      aws:cdk:path: AppServiceStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+

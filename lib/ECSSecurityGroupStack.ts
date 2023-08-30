@@ -1,12 +1,12 @@
 import { App, Stack, StackProps } from 'aws-cdk-lib'
 import { CfnSecurityGroup, CfnSecurityGroupIngress, CfnSubnet, CfnVPC } from 'aws-cdk-lib/aws-ec2'
-import { Profile, getProfile, toRefs } from './Utils'
+import { Profile, getProfile } from './Utils'
 
 export class ECSSecurityGroupStack extends Stack {
   public readonly ECSSecurityGroup: CfnSecurityGroup
   public readonly ELBSecurityGroup: CfnSecurityGroup
 
-  constructor(scope: App, id: string, vpc: CfnVPC, subnets: CfnSubnet[], nlbFlag: boolean = false, props?: StackProps) {
+  constructor(scope: App, id: string, vpc: CfnVPC, props?: StackProps) {
     super(scope, id, props)
     const p = getProfile(this)
 

@@ -19,3 +19,19 @@ export const toRefs = (instances: CfnResource[]): string[] => instances.map((ins
 export type Profile = {
   name: string
 }
+
+export type ContainerInfo = {
+  name: string
+  port: number
+  healthCheckPath: string
+  // appImage: string
+  // logImage: string
+  // logOptions: any
+}
+
+
+export type ServiceInfo = {
+  serviceName: string
+  listenerPort: number
+  testListenerPort?: number
+}

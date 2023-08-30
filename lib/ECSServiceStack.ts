@@ -1,10 +1,8 @@
 import { App, ScopedAws, Stack, StackProps } from 'aws-cdk-lib'
 import { CfnSecurityGroup, CfnSubnet } from 'aws-cdk-lib/aws-ec2'
-import { getProfile, toRefs } from './Utils'
+import { ContainerInfo, ServiceInfo, getProfile, toRefs } from './Utils'
 import { CfnCluster, CfnService, CfnTaskDefinition } from 'aws-cdk-lib/aws-ecs'
 import { CfnTargetGroup } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
-import { ContainerInfo } from './ECSServiceELBStack'
-
 export class ECSServiceStack extends Stack {
   public readonly ecsService: CfnService
   constructor(
@@ -15,6 +13,7 @@ export class ECSServiceStack extends Stack {
     taskDef: CfnTaskDefinition,
     ecsSecurityGroup: CfnSecurityGroup,
     containerInfo: ContainerInfo,
+    serviceInfo: ServiceInfo,
     targetGroup: CfnTargetGroup,
     props?: StackProps,
   ) {
@@ -54,7 +53,7 @@ export class ECSServiceStack extends Stack {
       // // deploymentController: CODE_DEPLOY
 
       taskDefinition: taskDef.ref,
-      serviceName: containerInfo.serviceName,
+      serviceName: serviceInfo.serviceName,
       schedulingStrategy: 'REPLICA',
       desiredCount: DesiredCount,
       loadBalancers: [
