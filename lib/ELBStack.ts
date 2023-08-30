@@ -23,7 +23,6 @@ export class ELBStack extends Stack {
     const scheme = internetFlag ? 'internet-facing' : 'internal'
 
     this.loadbalancer = createELB(this, 'app-ELB', type, scheme, subnets, [elbSecuriyGroup], p)
-    console.log(this.loadbalancer.attrDnsName)
   }
 }
 const createELB = (

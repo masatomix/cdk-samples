@@ -23,7 +23,7 @@ export class AppTaskdefinitionStack extends Stack {
         {
           essential: true,
           name: containerInfo.name,
-          image: 'nginx',
+          image: `${accountId}.dkr.ecr.ap-northeast-1.amazonaws.com/spring-boot-sample-tomcat:0.0.4-SNAPSHOT`,
           logConfiguration: {
             logDriver: 'awsfirelens',
             options: {
