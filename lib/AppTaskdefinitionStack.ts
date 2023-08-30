@@ -27,11 +27,11 @@ export class AppTaskdefinitionStack extends Stack {
           logConfiguration: {
             logDriver: 'awsfirelens',
             options: {
-              Name: 'cloudwatch_logs',
-              auto_create_group: 'true',
-              log_group_name: 'firelens-container',
-              log_stream_prefix: 'ecs/',
-              region: `${region}`,
+              // Name: 'cloudwatch_logs',
+              // auto_create_group: 'true',
+              // log_group_name: 'firelens-container',
+              // log_stream_prefix: 'ecs/',
+              // region: `${region}`,
             },
           },
           memoryReservation: 100,
@@ -46,9 +46,13 @@ export class AppTaskdefinitionStack extends Stack {
         {
           essential: true,
           name: 'log_router',
-          image: 'public.ecr.aws/aws-observability/aws-for-fluent-bit:init-2.28.4',
+          image: `${accountId}.dkr.ecr.ap-northeast-1.amazonaws.com/myfluent-bit:0.0.27`,
           firelensConfiguration: {
             type: 'fluentbit',
+            options: {
+              'config-file-type': 'file',
+              'config-file-value': '/fluent-bit/etc/fluent-bit-custom.conf',
+            },
           },
           logConfiguration: {
             logDriver: 'awslogs',
