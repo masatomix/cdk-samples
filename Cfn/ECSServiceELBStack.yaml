@@ -1,0 +1,175 @@
+Resources:
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 20
+      Name: app-service-group
+      Port: 80
+      Protocol: HTTP
+      TargetGroupAttributes:
+        - Key: stickiness.enabled
+          Value: "true"
+        - Key: stickiness.type
+          Value: lb_cookie
+        - Key: stickiness.lb_cookie.duration_seconds
+          Value: "86400"
+      TargetType: ip
+      UnhealthyThresholdCount: 5
+      VpcId:
+        Fn::ImportValue: VPCStack:ExportsOutputRefMyVPC3A1A60EC
+    Metadata:
+      aws:cdk:path: ECSServiceELBStack/TargetGroup
+  TargetGroupSub:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 20
+      Name: app-service-groupsub
+      Port: 80
+      Protocol: HTTP
+      TargetGroupAttributes:
+        - Key: stickiness.enabled
+          Value: "true"
+        - Key: stickiness.type
+          Value: lb_cookie
+        - Key: stickiness.lb_cookie.duration_seconds
+          Value: "86400"
+      TargetType: ip
+      UnhealthyThresholdCount: 5
+      VpcId:
+        Fn::ImportValue: VPCStack:ExportsOutputRefMyVPC3A1A60EC
+    Metadata:
+      aws:cdk:path: ECSServiceELBStack/TargetGroupSub
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn:
+            Ref: TargetGroup
+          Type: forward
+      LoadBalancerArn:
+        Fn::ImportValue: ELBStack:ExportsOutputRefappNLBdev2023082763723A82
+      Port: 8080
+      Protocol: HTTP
+    Metadata:
+      aws:cdk:path: ECSServiceELBStack/Listener
+  ListenerTest:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn:
+            Ref: TargetGroupSub
+          Type: forward
+      LoadBalancerArn:
+        Fn::ImportValue: ELBStack:ExportsOutputRefappNLBdev2023082763723A82
+      Port: 9080
+      Protocol: HTTP
+    Metadata:
+      aws:cdk:path: ECSServiceELBStack/ListenerTest
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/yWNsQ7CMAwFv4U9NVUkpO4dWJgKO3ITU7kNDoqTMlT9d1Ix3bu3nIWug/aEX22cX5rAI2z3jG4x9XpSQM3sQkQ/YkBxLNNqYetf8sA0Ub6mWD6m6o01k1DaDxlIY0mOjt1H8Zw5ym4keoJZz6tt4VKjszI3qUjmN8Hw5w9p8aXxkAAAAA==
+    Metadata:
+      aws:cdk:path: ECSServiceELBStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Outputs:
+  ExportsOutputRefTargetGroup3EEB09E5:
+    Value:
+      Ref: TargetGroup
+    Export:
+      Name: ECSServiceELBStack:ExportsOutputRefTargetGroup3EEB09E5
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+

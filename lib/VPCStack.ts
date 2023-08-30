@@ -49,7 +49,7 @@ export class VPCStack extends Stack {
     // VPC
     const vpc = new CfnVPC(this, `MyVPC`, {
       cidrBlock: vpcCIDRs.vpc,
-      tags: [{ key: 'Name', value: `${p.name}-vpc` }],
+      tags: [{ key: 'Name', value: `vpc${p.name}` }],
     })
     this.vpc = vpc
 
@@ -61,7 +61,7 @@ export class VPCStack extends Stack {
           cidrBlock: subnet.public,
           availabilityZone: availabilityZones[index],
           mapPublicIpOnLaunch: true,
-          tags: [{ key: 'Name', value: `${p.name}-public-subnet-${index}` }],
+          tags: [{ key: 'Name', value: `public-subnet-${index}${p.name}` }],
         }),
     )
     this.publicSubnets = publicSubnets
@@ -74,13 +74,13 @@ export class VPCStack extends Stack {
           cidrBlock: subnet.private,
           availabilityZone: availabilityZones[index],
           mapPublicIpOnLaunch: false,
-          tags: [{ key: 'Name', value: `${p.name}-private-subnet-${index}` }],
+          tags: [{ key: 'Name', value: `private-subnet-${index}${p.name}` }],
         }),
     )
     this.privateSubnets = privateSubnets
 
     // Internet Gateway
-    const igw = new CfnInternetGateway(this, 'MyInternetGateWay', { tags: [{ key: 'Name', value: `${p.name}-igw` }] })
+    const igw = new CfnInternetGateway(this, 'MyInternetGateWay', { tags: [{ key: 'Name', value: `igw${p.name}` }] })
     const attachInternetGateway = new CfnVPCGatewayAttachment(this, 'AttachGateway', {
       vpcId: vpc.ref,
       internetGatewayId: igw.ref,
@@ -91,7 +91,7 @@ export class VPCStack extends Stack {
       (subnet, index) =>
         new CfnRouteTable(this, `PublicRouteTable${index}`, {
           vpcId: vpc.ref,
-          tags: [{ key: 'Name', value: `${p.name}-public-route-${index}` }],
+          tags: [{ key: 'Name', value: `public-route-${index}${p.name}` }],
         }),
     )
 
@@ -100,7 +100,7 @@ export class VPCStack extends Stack {
       (subnet, index) =>
         new CfnRouteTable(this, `PrivateRouteTable${index}`, {
           vpcId: vpc.ref,
-          tags: [{ key: 'Name', value: `${p.name}-private-route-${index}` }],
+          tags: [{ key: 'Name', value: `private-route-${index}${p.name}` }],
         }),
     )
 
@@ -150,7 +150,7 @@ export class VPCStack extends Stack {
     const natgw = new CfnNatGateway(this, `MyNAT1`, {
       allocationId: eip.attrAllocationId,
       subnetId: publicSubnets[0].ref,
-      tags: [{ key: 'Name', value: `${p.name}-natgw` }],
+      tags: [{ key: 'Name', value: `natgw${p.name}` }],
     })
     natgw.addDependency(attachInternetGateway)
 
