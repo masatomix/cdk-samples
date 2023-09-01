@@ -28,15 +28,15 @@ const main = () => {
   })
 
   const serviceInfo: ServiceInfo = {
-    serviceName: 'app-service',
+    serviceName: 'spring-boot-service',
     listenerPort: 8080,
     testListenerPort: 9080,
   }
 
   const containerInfo: ContainerInfo = {
     name: 'app',
-    port: 80,
-    healthCheckPath: '/',
+    port: 8080,
+    healthCheckPath: '/actuator/health',
   }
 
   const serviceStackELB = new ECSServiceELBStack(app, 'ECSServiceELBStack', {
