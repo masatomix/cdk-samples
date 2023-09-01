@@ -25,32 +25,32 @@ export class ECSServiceStack extends Stack {
 
     const ecsService = new CfnService(this, 'ECSService', {
       cluster: props.cluster.ref,
-      // deploymentController: ECS
-      capacityProviderStrategy: [
-        {
-          capacityProvider: 'FARGATE',
-          base: 0,
-          weight: 1,
-        },
-      ],
-      deploymentController: {
-        type: 'ECS',
-      },
-      deploymentConfiguration: {
-        maximumPercent: 200,
-        minimumHealthyPercent: 100,
-        deploymentCircuitBreaker: {
-          enable: true,
-          rollback: true,
-        },
-      },
-      // deploymentController: ECS
-      // // deploymentController: CODE_DEPLOY
-      // launchType: 'FARGATE',
+      // // deploymentController: ECS
+      // capacityProviderStrategy: [
+      //   {
+      //     capacityProvider: 'FARGATE',
+      //     base: 0,
+      //     weight: 1,
+      //   },
+      // ],
       // deploymentController: {
-      //   type: 'CODE_DEPLOY',
+      //   type: 'ECS',
       // },
-      // // deploymentController: CODE_DEPLOY
+      // deploymentConfiguration: {
+      //   maximumPercent: 200,
+      //   minimumHealthyPercent: 100,
+      //   deploymentCircuitBreaker: {
+      //     enable: true,
+      //     rollback: true,
+      //   },
+      // },
+      // // deploymentController: ECS
+      // deploymentController: CODE_DEPLOY
+      launchType: 'FARGATE',
+      deploymentController: {
+        type: 'CODE_DEPLOY',
+      },
+      // deploymentController: CODE_DEPLOY
 
       taskDefinition: props.taskDef.ref,
       serviceName: props.serviceInfo.serviceName,

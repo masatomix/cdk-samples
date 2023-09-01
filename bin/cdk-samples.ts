@@ -11,6 +11,8 @@ import { ECSSecurityGroupStack } from '../lib/ECSSecurityGroupStack'
 import { ECSServiceELBStack } from '../lib/ECSServiceELBStack'
 import { AppTaskdefinitionStack } from '../lib/AppTaskdefinitionStack'
 import { ContainerInfo, ServiceInfo } from '../lib/Utils'
+import { CfnService } from 'aws-cdk-lib/aws-ecs'
+import { DeploymentGroupStack } from '../lib/DeploymentGroupStack'
 
 const main = () => {
   const app = new cdk.App()
@@ -61,6 +63,19 @@ const main = () => {
     containerInfo,
     serviceInfo,
   })
+
+  if (
+    (serviceStack.ecsService.deploymentController as CfnService.DeploymentControllerProperty).type === 'CODE_DEPLOY'
+  ) {
+    const d = new DeploymentGroupStack(app, 'DeploymentGroupStack', {
+      cluster: clusterStack.cluster,
+      application: clusterStack.application,
+      serviceELBStack: serviceStackELB, //targetGroup, targetGroupSub, listener, testListener
+      ecsService: serviceStack.ecsService,
+      codeDeployRole: ecsRoleStack.codeDeployRole,
+    })
+    d.addDependency(serviceStack)
+  }
 }
 
 main()
