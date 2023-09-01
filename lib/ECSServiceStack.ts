@@ -3,28 +3,28 @@ import { CfnSecurityGroup, CfnSubnet } from 'aws-cdk-lib/aws-ec2'
 import { ContainerInfo, ServiceInfo, getProfile, toRefs } from './Utils'
 import { CfnCluster, CfnService, CfnTaskDefinition } from 'aws-cdk-lib/aws-ecs'
 import { CfnTargetGroup } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
+
+type ECSServiceStackProps = StackProps & {
+  subnets: CfnSubnet[]
+  cluster: CfnCluster
+  taskDef: CfnTaskDefinition
+  ecsSecurityGroup: CfnSecurityGroup
+  containerInfo: ContainerInfo
+  serviceInfo: ServiceInfo
+  targetGroup: CfnTargetGroup
+}
+
 export class ECSServiceStack extends Stack {
   public readonly ecsService: CfnService
-  constructor(
-    scope: App,
-    id: string,
-    subnets: CfnSubnet[],
-    cluster: CfnCluster,
-    taskDef: CfnTaskDefinition,
-    ecsSecurityGroup: CfnSecurityGroup,
-    containerInfo: ContainerInfo,
-    serviceInfo: ServiceInfo,
-    targetGroup: CfnTargetGroup,
-    props?: StackProps,
-  ) {
+  constructor(scope: App, id: string, props: ECSServiceStackProps) {
     super(scope, id, props)
     const p = getProfile(this)
     const { accountId, region } = new ScopedAws(this)
 
-    const DesiredCount = subnets.length
+    const DesiredCount = props.subnets.length
 
     const ecsService = new CfnService(this, 'ECSService', {
-      cluster: cluster.ref,
+      cluster: props.cluster.ref,
       // deploymentController: ECS
       capacityProviderStrategy: [
         {
@@ -52,24 +52,24 @@ export class ECSServiceStack extends Stack {
       // },
       // // deploymentController: CODE_DEPLOY
 
-      taskDefinition: taskDef.ref,
-      serviceName: serviceInfo.serviceName,
+      taskDefinition: props.taskDef.ref,
+      serviceName: props.serviceInfo.serviceName,
       schedulingStrategy: 'REPLICA',
       desiredCount: DesiredCount,
       loadBalancers: [
         {
-          containerName: containerInfo.name,
-          containerPort: containerInfo.port,
+          containerName: props.containerInfo.name,
+          containerPort: props.containerInfo.port,
           // LoadBalancerName:
           //   Ref: 'AWS::NoValue'
-          targetGroupArn: targetGroup.ref,
+          targetGroupArn: props.targetGroup.ref,
         },
       ],
       networkConfiguration: {
         awsvpcConfiguration: {
           assignPublicIp: 'DISABLED',
-          securityGroups: toRefs([ecsSecurityGroup]),
-          subnets: toRefs(subnets),
+          securityGroups: toRefs([props.ecsSecurityGroup]),
+          subnets: toRefs(props.subnets),
         },
       },
       platformVersion: 'LATEST',

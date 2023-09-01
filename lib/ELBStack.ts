@@ -4,26 +4,27 @@ import { Profile, getProfile, toRefs } from './Utils'
 import { CfnLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
+type ELBStackProps = StackProps & {
+  subnets: CfnSubnet[]
+  elbSecuriyGroup: CfnSecurityGroup
+  albFlag?: boolean
+  internetFlag?: boolean
+}
+
 export class ELBStack extends Stack {
   public readonly loadbalancer: CfnLoadBalancer
 
-  constructor(
-    scope: App,
-    id: string,
-    subnets: CfnSubnet[],
-    elbSecuriyGroup: CfnSecurityGroup,
-    albFlag: boolean = true,
-    internetFlag: boolean = true,
-    props?: StackProps,
-  ) {
+  constructor(scope: App, id: string, props: ELBStackProps) {
+    props.albFlag = props.albFlag ?? true
+    props.internetFlag = props.internetFlag ?? true
+
     super(scope, id, props)
     const p = getProfile(this)
 
-    const type = albFlag ? 'application' : 'network'
-    const scheme = internetFlag ? 'internet-facing' : 'internal'
+    const type = props.albFlag ? 'application' : 'network'
+    const scheme = props.internetFlag ? 'internet-facing' : 'internal'
 
-    this.loadbalancer = createELB(this, 'app-ELB', type, scheme, subnets, [elbSecuriyGroup], p)
-    console.log(this.loadbalancer.attrDnsName)
+    this.loadbalancer = createELB(this, 'app-ELB', type, scheme, props.subnets, [props.elbSecuriyGroup], p)
   }
 }
 const createELB = (

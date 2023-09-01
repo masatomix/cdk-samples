@@ -68,57 +68,53 @@ const createListener = (
   })
 }
 
+type ECSServiceELBStackProps = StackProps & {
+  loadbalancer: CfnLoadBalancer
+  vpc: CfnVPC
+  containerInfo: ContainerInfo
+  serviceInfo: ServiceInfo
+}
+
 export class ECSServiceELBStack extends Stack {
   public readonly targetGroup: CfnTargetGroup
   public readonly targetGroupSub: CfnTargetGroup
   public readonly listener: CfnListener
   public readonly testListener: CfnListener
-  constructor({
-    scope,
-    id,
-    loadbalancer,
-    vpc,
-    containerInfo,
-    serviceInfo,
-    props,
-  }: {
-    scope: App
-    id: string
-    loadbalancer: CfnLoadBalancer
-    vpc: CfnVPC
-    containerInfo: ContainerInfo
-    serviceInfo: ServiceInfo
-    props?: StackProps
-  }) {
+  constructor(scope: App, id: string, props: ECSServiceELBStackProps) {
     super(scope, id, props)
     const p = getProfile(this)
     const { accountId, region } = new ScopedAws(this)
 
-    const serviceName = serviceInfo.serviceName
+    const serviceName = props.serviceInfo.serviceName
 
     const targetGroup = createTargetGroup(
       this,
       'TargetGroup',
       `${serviceName}-group`,
-      containerInfo,
-      loadbalancer,
-      vpc.ref,
+      props.containerInfo,
+      props.loadbalancer,
+      props.vpc.ref,
     )
     const targetGroupSub = createTargetGroup(
       this,
       'TargetGroupSub',
       `${serviceName}-groupsub`,
-      containerInfo,
-      loadbalancer,
-      vpc.ref,
+      props.containerInfo,
+      props.loadbalancer,
+      props.vpc.ref,
     )
     this.targetGroup = targetGroup
     this.targetGroupSub = targetGroupSub
 
-    const listener = createListener(this, 'Listener', targetGroup, serviceInfo.listenerPort, loadbalancer)
-    const testListener = createListener(this, 'ListenerTest', targetGroup, serviceInfo.testListenerPort!, loadbalancer)
+    const listener = createListener(this, 'Listener', targetGroup, props.serviceInfo.listenerPort, props.loadbalancer)
+    const testListener = createListener(
+      this,
+      'ListenerTest',
+      targetGroup,
+      props.serviceInfo.testListenerPort!,
+      props.loadbalancer,
+    )
     this.listener = listener
     this.testListener = testListener
   }
 }
-

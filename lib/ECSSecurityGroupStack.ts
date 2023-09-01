@@ -2,19 +2,29 @@ import { App, Stack, StackProps } from 'aws-cdk-lib'
 import { CfnSecurityGroup, CfnSecurityGroupIngress, CfnSubnet, CfnVPC } from 'aws-cdk-lib/aws-ec2'
 import { Profile, getProfile } from './Utils'
 
+type ECSSecurityGroupStackProps = StackProps & {
+  vpc: CfnVPC
+}
+
 export class ECSSecurityGroupStack extends Stack {
   public readonly ECSSecurityGroup: CfnSecurityGroup
   public readonly ELBSecurityGroup: CfnSecurityGroup
 
-  constructor(scope: App, id: string, vpc: CfnVPC, props?: StackProps) {
+  constructor(scope: App, id: string, /*vpc: CfnVPC,*/ props: ECSSecurityGroupStackProps) {
     super(scope, id, props)
     const p = getProfile(this)
 
     // 8080-8088,9080-9088 がOKなセキュリティグループをELB用に作成
-    this.ELBSecurityGroup = createELBSecurityGroup(this, `ELBSecurityGroup${p.name}`, vpc, p)
+    this.ELBSecurityGroup = createELBSecurityGroup(this, `ELBSecurityGroup${p.name}`, props.vpc, p)
 
     // ELBのSGと、VPCのネットからのアクセスを許可
-    this.ECSSecurityGroup = createECSSecurityGroup(this, `ECSSecurityGroup${p.name}`, vpc, this.ELBSecurityGroup, p)
+    this.ECSSecurityGroup = createECSSecurityGroup(
+      this,
+      `ECSSecurityGroup${p.name}`,
+      props.vpc,
+      this.ELBSecurityGroup,
+      p,
+    )
   }
 }
 

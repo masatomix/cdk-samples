@@ -18,11 +18,14 @@ const main = () => {
   const vpcStack = new VPCStack(app, 'VPCStack')
   // new BastionStack(app, 'BastionStack', vpcStack.vpc, vpcStack.publicSubnets[0])
 
-  const sgStack = new ECSSecurityGroupStack(app, 'ECSSecurityGroupStack', vpcStack.vpc)
+  const sgStack = new ECSSecurityGroupStack(app, 'ECSSecurityGroupStack', { vpc: vpcStack.vpc })
   const clusterStack = new ClusterStack(app, 'ClusterStack')
   const ecsRoleStack = new ECSRoleStack(app, 'ECSRoleStack')
 
-  const elbStack = new ELBStack(app, 'ELBStack', vpcStack.publicSubnets, sgStack.ELBSecurityGroup)
+  const elbStack = new ELBStack(app, 'ELBStack', {
+    subnets: vpcStack.publicSubnets,
+    elbSecuriyGroup: sgStack.ELBSecurityGroup,
+  })
 
   const serviceInfo: ServiceInfo = {
     serviceName: 'app-service',
@@ -36,28 +39,28 @@ const main = () => {
     healthCheckPath: '/',
   }
 
-  const serviceStackELB = new ECSServiceELBStack({
-    scope: app,
-    id: 'ECSServiceELBStack',
+  const serviceStackELB = new ECSServiceELBStack(app, 'ECSServiceELBStack', {
     loadbalancer: elbStack.loadbalancer,
     vpc: vpcStack.vpc,
     containerInfo,
     serviceInfo,
   })
 
-  const appTaskdefinition = new AppTaskdefinitionStack(app, 'AppTaskdefinitionStack', containerInfo, ecsRoleStack)
+  const appTaskdefinition = new AppTaskdefinitionStack(app, 'AppTaskdefinitionStack', {
+    ecsTaskRole: ecsRoleStack.ecsTaskRole,
+    ecsTaskExecutionRole: ecsRoleStack.ecsTaskExecutionRole,
+    containerInfo,
+  })
 
-  const serviceStack = new ECSServiceStack(
-    app,
-    'AppServiceStack',
-    vpcStack.privateSubnets, // ECSを配置するネットはPrivate Subnet
-    clusterStack.cluster,
-    appTaskdefinition.taskDef,
-    sgStack.ECSSecurityGroup,
+  const serviceStack = new ECSServiceStack(app, 'AppServiceStack', {
+    cluster: clusterStack.cluster,
+    subnets: vpcStack.privateSubnets, // ECSを配置するネットはPrivate Subnet
+    taskDef: appTaskdefinition.taskDef,
+    ecsSecurityGroup: sgStack.ECSSecurityGroup,
+    targetGroup: serviceStackELB.targetGroup,
     containerInfo,
     serviceInfo,
-    serviceStackELB.targetGroup,
-  )
+  })
 }
 
 main()

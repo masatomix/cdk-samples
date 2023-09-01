@@ -1,11 +1,17 @@
 import { App, ScopedAws, Stack, StackProps } from 'aws-cdk-lib'
 import { ContainerInfo, getProfile } from './Utils'
 import { CfnTaskDefinition } from 'aws-cdk-lib/aws-ecs'
-import { ECSRoleStack } from './ECSRoleStack'
+import { CfnRole } from 'aws-cdk-lib/aws-iam'
+
+type AppTaskdefinitionStackProps = StackProps & {
+  ecsTaskRole: CfnRole
+  ecsTaskExecutionRole: CfnRole
+  containerInfo: ContainerInfo
+}
 
 export class AppTaskdefinitionStack extends Stack {
   public readonly taskDef: CfnTaskDefinition
-  constructor(scope: App, id: string, containerInfo: ContainerInfo, ecsRoleStack: ECSRoleStack, props?: StackProps) {
+  constructor(scope: App, id: string, props: AppTaskdefinitionStackProps) {
     super(scope, id, props)
     const p = getProfile(this)
     const { accountId, region } = new ScopedAws(this)
@@ -18,12 +24,12 @@ export class AppTaskdefinitionStack extends Stack {
     // })
 
     this.taskDef = new CfnTaskDefinition(this, 'ECSTaskDefinition', {
-      family: `${containerInfo.name}-taskdefinition${p.name}`,
+      family: `${props.containerInfo.name}-taskdefinition${p.name}`,
       containerDefinitions: [
         {
           essential: true,
-          name: containerInfo.name,
           image: 'nginx',
+          name: props.containerInfo.name,
           logConfiguration: {
             logDriver: 'awslogs',
             options: {
@@ -36,15 +42,15 @@ export class AppTaskdefinitionStack extends Stack {
           memoryReservation: 100,
           portMappings: [
             {
-              containerPort: containerInfo.port,
-              hostPort: containerInfo.port,
+              containerPort: props.containerInfo.port,
+              hostPort: props.containerInfo.port,
               protocol: 'tcp',
             },
           ],
         },
       ],
-      taskRoleArn: ecsRoleStack.ecsTaskRole.attrArn,
-      executionRoleArn: ecsRoleStack.ecsTaskExecutionRole.attrArn,
+      taskRoleArn: props.ecsTaskRole.attrArn,
+      executionRoleArn: props.ecsTaskExecutionRole.attrArn,
       networkMode: 'awsvpc',
       requiresCompatibilities: ['FARGATE'],
       cpu: '256',
