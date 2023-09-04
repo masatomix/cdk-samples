@@ -8,9 +8,10 @@ import {
   CfnSubnet,
   CfnSubnetRouteTableAssociation,
   CfnVPC,
+  CfnVPCEndpoint,
   CfnVPCGatewayAttachment,
 } from 'aws-cdk-lib/aws-ec2'
-import { availabilityZones, getProfile } from './Utils'
+import { availabilityZones, getProfile, toRefs } from './Utils'
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class VPCStack extends Stack {
@@ -49,6 +50,7 @@ export class VPCStack extends Stack {
     // VPC
     const vpc = new CfnVPC(this, `MyVPC`, {
       cidrBlock: vpcCIDRs.vpc,
+      enableDnsHostnames: true,
       tags: [{ key: 'Name', value: `vpc${p.name}` }],
     })
     this.vpc = vpc

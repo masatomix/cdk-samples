@@ -13,16 +13,21 @@ import { AppTaskdefinitionStack } from '../lib/AppTaskdefinitionStack'
 import { ContainerInfo, ServiceInfo } from '../lib/Utils'
 import { CfnService } from 'aws-cdk-lib/aws-ecs'
 import { DeploymentGroupStack } from '../lib/DeploymentGroupStack'
+import { VPCEndpointStack } from '../lib/VPCEndpointStack'
 
 const main = () => {
   const app = new cdk.App()
-
   const vpcStack = new VPCStack(app, 'VPCStack')
-  // new BastionStack(app, 'BastionStack', vpcStack.vpc, vpcStack.publicSubnets[0])
+  new BastionStack(app, 'BastionStack', vpcStack.vpc, vpcStack.publicSubnets[0])
 
   const sgStack = new ECSSecurityGroupStack(app, 'ECSSecurityGroupStack', { vpc: vpcStack.vpc })
   const clusterStack = new ClusterStack(app, 'ClusterStack')
   const ecsRoleStack = new ECSRoleStack(app, 'ECSRoleStack')
+  const vpcEndpointStack = new VPCEndpointStack(app, 'VPCEndpointStack', {
+    vpc: vpcStack.vpc,
+    subnets: vpcStack.privateSubnets,
+  })
+  vpcEndpointStack.addDependency(vpcStack)
 
   const elbStack = new ELBStack(app, 'ELBStack', {
     subnets: vpcStack.publicSubnets,
