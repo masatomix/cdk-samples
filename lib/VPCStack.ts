@@ -26,25 +26,9 @@ export class VPCStack extends Stack {
 
     const vpcCIDRs = {
       vpc: '192.168.0.0/16',
-      subnets: [
-        { public: '192.168.0.0/24', private: '192.168.1.0/24' },
-        { public: '192.168.2.0/24', private: '192.168.3.0/24' },
-        { public: '192.168.4.0/24', private: '192.168.5.0/24' },
-      ],
+      subnets: [{ public: '192.168.0.0/24' }],
     }
     const subnetCount = vpcCIDRs.subnets.length
-
-    // const vpcCIDR = new CfnParameter(this, 'VPCCIDR', {
-    //   type: 'String',
-    //   description: 'VPC CIDR.recommend /16',
-    //   default: `${vpcCIDRs.vpc}`,
-    // })
-    // // VPC
-    // const vpc = new CfnVPC(this, `MyVPC`, {
-    //   // cidrBlock: vpcCIDR.valueAsString,
-    //   cidrBlock: vpcCIDRs.vpc,
-    //   tags: [{ key: 'Name', value: `${p.name}-vpc` }],
-    // })
 
     // VPC
     const vpc = new CfnVPC(this, `MyVPC`, {
@@ -66,19 +50,6 @@ export class VPCStack extends Stack {
     )
     this.publicSubnets = publicSubnets
 
-    // Private Subnet
-    const privateSubnets = vpcCIDRs.subnets.map(
-      (subnet, index) =>
-        new CfnSubnet(this, `MyPrivateSubnet${index}`, {
-          vpcId: vpc.ref,
-          cidrBlock: subnet.private,
-          availabilityZone: availabilityZones[index],
-          mapPublicIpOnLaunch: false,
-          tags: [{ key: 'Name', value: `private-subnet-${index}${p.name}` }],
-        }),
-    )
-    this.privateSubnets = privateSubnets
-
     // Internet Gateway
     const igw = new CfnInternetGateway(this, 'MyInternetGateWay', { tags: [{ key: 'Name', value: `igw${p.name}` }] })
     const attachInternetGateway = new CfnVPCGatewayAttachment(this, 'AttachGateway', {
@@ -95,15 +66,6 @@ export class VPCStack extends Stack {
         }),
     )
 
-    // Private RouteTables
-    const privateRouteTables = vpcCIDRs.subnets.map(
-      (subnet, index) =>
-        new CfnRouteTable(this, `PrivateRouteTable${index}`, {
-          vpcId: vpc.ref,
-          tags: [{ key: 'Name', value: `private-route-${index}${p.name}` }],
-        }),
-    )
-
     for (let index = 0; index < subnetCount; index++) {
       // 各Public用 RouteTableに Public Subnetを紐付け
       new CfnSubnetRouteTableAssociation(this, `PublicSubnetRouteTableAssociation${index}`, {
@@ -117,51 +79,6 @@ export class VPCStack extends Stack {
         destinationCidrBlock: '0.0.0.0/0',
         gatewayId: igw.ref,
       })
-
-      // 各Private用 RouteTableに Private Subnetを紐付け
-      new CfnSubnetRouteTableAssociation(this, `PrivateSubnetRouteTableAssociation${index}`, {
-        routeTableId: privateRouteTables[index].ref,
-        subnetId: privateSubnets[index].ref,
-      })
     }
-
-    // // 各Subnetに、NAT GWを置くパタン
-    // const eips = [...new Array(subnetCount)].map((_: undefined, index: number) => {
-    //   return new CfnEIP(this, `EIPforNatGw${index}`, { domain: 'vpc' })
-    // })
-    // const natgws = [...new Array(subnetCount)].map((_: undefined, index: number) => {
-    //   return new CfnNatGateway(this, `MyNAT${index}`, {
-    //     allocationId: eips[index].attrAllocationId,
-    //     subnetId: publicSubnets[index].ref
-    //   })
-    // })
-    // for (let i = 0; i < subnetCount; i++) {
-    //   new CfnRoute(this, `RouteToNAT${i}`, {
-    //     routeTableId: privateRouteTables[i].ref,
-    //     destinationCidrBlock: '0.0.0.0/0',
-    //     natGatewayId: natgws[i].ref
-    //   })
-    // }
-    // // 各Subnetに、NAT GWを置くパタン
-
-    // 1Subnetに、NAT GWを置くパタン
-    // publicSubnets[0] に、NAT GWを配置して
-    const eip = new CfnEIP(this, 'EIPforNatGw1', { domain: 'vpc' })
-    const natgw = new CfnNatGateway(this, `MyNAT1`, {
-      allocationId: eip.attrAllocationId,
-      subnetId: publicSubnets[0].ref,
-      tags: [{ key: 'Name', value: `natgw${p.name}` }],
-    })
-    natgw.addDependency(attachInternetGateway)
-
-    // そのNAT GWを各Private SubnetのRouteTableにセットする
-    for (let i = 0; i < subnetCount; i++) {
-      new CfnRoute(this, `RouteToNAT${i}`, {
-        routeTableId: privateRouteTables[i].ref,
-        destinationCidrBlock: '0.0.0.0/0',
-        natGatewayId: natgw.ref,
-      })
-    }
-    // 1Subnetに、NAT GWを置くパタン
   }
 }
