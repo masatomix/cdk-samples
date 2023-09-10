@@ -16,13 +16,11 @@ export class BastionStack extends Stack {
 
     const PublicSubnetEC2SecurityGroup = createSecurityGroup(this, vpc, p)
     const keyPair = new CfnKeyPair(this, 'KeyPair', {
-      keyName: `${p.name}-KeyPair`,
+      keyName: `KeyPair${p.name}`,
     })
     createEC2(this, subnet, [PublicSubnetEC2SecurityGroup.ref], keyPair.ref, true, p)
-    // createEC2(this, subnet, [PublicSubnetEC2SecurityGroup.ref], 'temp_private', true, p)
   }
 }
-
 
 const createEC2 = (
   stack: Stack,
@@ -44,16 +42,16 @@ const createEC2 = (
         groupSet,
       },
     ],
-    tags: [{ key: 'Name', value: `${p.name}-ec2` }],
+    tags: [{ key: 'Name', value: `ec2${p.name}` }],
   })
 }
 
-const createSecurityGroup = (stack: Stack, vpc: CfnVPC, profile: Profile): CfnSecurityGroup => {
+const createSecurityGroup = (stack: Stack, vpc: CfnVPC, p: Profile): CfnSecurityGroup => {
   const group = new CfnSecurityGroup(stack, 'PublicSubnetEC2SecurityGroup', {
     groupName: 'public-ec2-sg',
     groupDescription: 'Allow SSH access from MyIP',
     vpcId: vpc.attrVpcId,
-    tags: [{ key: 'Name', value: `${profile.name}-public-sg` }],
+    tags: [{ key: 'Name', value: `public-sg${p.name}` }],
   })
 
   new CfnSecurityGroupIngress(stack, 'PublicSubnetEC2SecurityGroupIngress000', {
@@ -69,14 +67,6 @@ const createSecurityGroup = (stack: Stack, vpc: CfnVPC, profile: Profile): CfnSe
     groupId: group.ref,
     cidrIp: '0.0.0.0/0',
   })
-
-  // new CfnSecurityGroupIngress(stack, 'PublicSubnetEC2SecurityGroupIngress002', {
-  //   ipProtocol: 'tcp',
-  //   fromPort: 80,
-  //   toPort: 80,
-  //   groupId: group.ref,
-  //   cidrIp: '0.0.0.0/0',
-  // })
 
   return group
 }
