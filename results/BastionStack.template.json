@@ -1,0 +1,114 @@
+{
+ "Resources": {
+  "PublicSubnetEC2SecurityGroup": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Allow SSH access from MyIP",
+    "GroupName": "public-ec2-sg",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "public-sg-dev"
+     }
+    ],
+    "VpcId": {
+     "Fn::ImportValue": "VPCStack:ExportsOutputFnGetAttMyVPCVpcIdF2BB1C6C"
+    }
+   }
+  },
+  "PublicSubnetEC2SecurityGroupIngress000": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "GroupId": {
+     "Ref": "PublicSubnetEC2SecurityGroup"
+    },
+    "IpProtocol": "-1",
+    "SourceSecurityGroupId": {
+     "Ref": "PublicSubnetEC2SecurityGroup"
+    }
+   }
+  },
+  "PublicSubnetEC2SecurityGroupIngress001": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "CidrIp": "0.0.0.0/0",
+    "FromPort": 22,
+    "GroupId": {
+     "Ref": "PublicSubnetEC2SecurityGroup"
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 22
+   }
+  },
+  "KeyPair": {
+   "Type": "AWS::EC2::KeyPair",
+   "Properties": {
+    "KeyName": "KeyPair-dev"
+   }
+  },
+  "BastionEC2": {
+   "Type": "AWS::EC2::Instance",
+   "Properties": {
+    "ImageId": "ami-00d101850e971728d",
+    "InstanceType": "t2.micro",
+    "KeyName": {
+     "Ref": "KeyPair"
+    },
+    "NetworkInterfaces": [
+     {
+      "AssociatePublicIpAddress": true,
+      "DeviceIndex": "0",
+      "GroupSet": [
+       {
+        "Ref": "PublicSubnetEC2SecurityGroup"
+       }
+      ],
+      "SubnetId": {
+       "Fn::ImportValue": "VPCStack:ExportsOutputFnGetAttMyPublicSubnet0SubnetIdBAD4E09B"
+      }
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "ec2-dev"
+     }
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
