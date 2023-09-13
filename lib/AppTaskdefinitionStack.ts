@@ -1,27 +1,65 @@
-import { App, ScopedAws, Stack, StackProps } from 'aws-cdk-lib'
+import { App, RemovalPolicy, ScopedAws, Stack, StackProps } from 'aws-cdk-lib'
 import { ContainerInfo, getProfile } from './Utils'
 import { CfnTaskDefinition } from 'aws-cdk-lib/aws-ecs'
 import { CfnRole } from 'aws-cdk-lib/aws-iam'
+import * as codecommit from 'aws-cdk-lib/aws-codecommit'
+import * as ecr from 'aws-cdk-lib/aws-ecr'
 
 type AppTaskdefinitionStackProps = StackProps & {
   ecsTaskRole: CfnRole
   ecsTaskExecutionRole: CfnRole
   containerInfo: ContainerInfo
+  codecommitCreate?: boolean
+  ecrCreate?: boolean
 }
 
 export class AppTaskdefinitionStack extends Stack {
   public readonly taskDef: CfnTaskDefinition
   constructor(scope: App, id: string, props: AppTaskdefinitionStackProps) {
+    props.codecommitCreate = props.codecommitCreate ?? false
+    props.ecrCreate = props.ecrCreate ?? false
     super(scope, id, props)
     const p = getProfile(this)
     const { accountId, region } = new ScopedAws(this)
 
-    // const ECRRepository = new CfnRepository(this, 'ECRRepository', {
-    //   repositoryName: 'myfluent-bit',
-    //   lifecyclePolicy: {
-    //     registryId: accountId,
-    //   },
-    // })
+    if (props.codecommitCreate) {
+      new codecommit.CfnRepository(this, `CodeCommit${props.containerInfo.name}`, {
+        repositoryName: props.containerInfo.name,
+        repositoryDescription: `${props.containerInfo.name}-codecommit`,
+      }).applyRemovalPolicy(RemovalPolicy.RETAIN)
+    }
+
+    if (props.ecrCreate) {
+      const lifecyclePolicy = {
+        rules: [
+          {
+            rulePriority: 1,
+            description: 'Delete more than 5 images',
+            selection: {
+              tagStatus: 'any',
+              countType: 'imageCountMoreThan',
+              countNumber: 5,
+            },
+            action: {
+              type: 'expire',
+            },
+          },
+        ],
+      }
+      new ecr.CfnRepository(this, `ECR${props.containerInfo.name}`, {
+        repositoryName: props.containerInfo.name,
+        lifecyclePolicy: {
+          registryId: accountId,
+          lifecyclePolicyText: JSON.stringify(lifecyclePolicy),
+        },
+        tags: [
+          {
+            key: 'Name',
+            value: `${props.containerInfo.name}-ecr`,
+          },
+        ],
+      })
+    }
 
     this.taskDef = new CfnTaskDefinition(this, 'ECSTaskDefinition', {
       family: `${props.containerInfo.name}-taskdefinition${p.name}`,
