@@ -90,7 +90,7 @@ export class ECSServiceELBStack extends Stack {
     const targetGroup = createTargetGroup(
       this,
       'TargetGroup',
-      `${serviceName}-group`,
+      `${serviceName}1`,
       props.containerInfo,
       props.loadbalancer,
       props.vpc.ref,
@@ -98,7 +98,7 @@ export class ECSServiceELBStack extends Stack {
     const targetGroupSub = createTargetGroup(
       this,
       'TargetGroupSub',
-      `${serviceName}-groupsub`,
+      `${serviceName}2`,
       props.containerInfo,
       props.loadbalancer,
       props.vpc.ref,
