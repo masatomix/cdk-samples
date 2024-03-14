@@ -14,6 +14,8 @@ import { ContainerInfo, ServiceInfo } from '../lib/Utils'
 import { CfnService } from 'aws-cdk-lib/aws-ecs'
 import { DeploymentGroupStack } from '../lib/DeploymentGroupStack'
 import { VPCEndpointStack } from '../lib/VPCEndpointStack'
+// import { ErrorLogAlarmStack } from '../lib/ErrorLogAlarmStack'
+import { AutoScalingStack } from '../lib/AutoScalingStack'
 
 const main = () => {
   const app = new cdk.App()
@@ -69,6 +71,11 @@ const main = () => {
     serviceInfo,
   })
 
+  new AutoScalingStack(app, 'AutoScalingStack', {
+    cluster: clusterStack.cluster,
+    ecsService: serviceStack.ecsService,
+  }).addDependency(serviceStack)
+
   if (
     (serviceStack.ecsService.deploymentController as CfnService.DeploymentControllerProperty).type === 'CODE_DEPLOY'
   ) {
@@ -81,6 +88,9 @@ const main = () => {
     })
     d.addDependency(serviceStack)
   }
+
+  // new ErrorLogAlarmStack(app, 'ErrorLogAlarmStack').addDependency(serviceStack)
+
 }
 
 main()
