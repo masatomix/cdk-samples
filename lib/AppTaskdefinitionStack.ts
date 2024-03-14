@@ -78,7 +78,8 @@ export class AppTaskdefinitionStack extends Stack {
               // region: `${region}`,
             },
           },
-          memoryReservation: 100,
+          // memoryReservation: 3072,
+          // cpu: 256,
           portMappings: [
             {
               containerPort: props.containerInfo.port,
@@ -107,7 +108,8 @@ export class AppTaskdefinitionStack extends Stack {
               'awslogs-stream-prefix': 'firelens',
             },
           },
-          memoryReservation: 50,
+          // memoryReservation: 512,       
+          // cpu: 256,
           user: '0',
         },
       ],
@@ -117,6 +119,8 @@ export class AppTaskdefinitionStack extends Stack {
       requiresCompatibilities: ['FARGATE'],
       cpu: '256',
       memory: '512',
+      // cpu: '1024',
+      // memory: '4096',
     })
   }
 }
