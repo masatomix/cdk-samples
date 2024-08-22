@@ -13,25 +13,26 @@ import {
 import { availabilityZones, getProfile } from './Utils'
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
+
+type VPCStackProps = StackProps & {
+  vpcCIDRs: {
+    vpc: string,
+    subnets: { public: string, private: string }[],
+  }
+}
+
 export class VPCStack extends Stack {
   public readonly vpc: CfnVPC
   public readonly publicSubnets: CfnSubnet[]
   public readonly privateSubnets: CfnSubnet[]
 
-  constructor(scope: App, id: string, props?: StackProps) {
+  constructor(scope: App, id: string, props: VPCStackProps) {
     super(scope, id, props)
 
     // The code that defines your stack goes here
     const p = getProfile(this)
 
-    const vpcCIDRs = {
-      vpc: '192.168.0.0/16',
-      subnets: [
-        { public: '192.168.0.0/24', private: '192.168.1.0/24' },
-        { public: '192.168.2.0/24', private: '192.168.3.0/24' },
-        { public: '192.168.4.0/24', private: '192.168.5.0/24' },
-      ],
-    }
+    const { vpcCIDRs } = props
     const subnetCount = vpcCIDRs.subnets.length
 
     // const vpcCIDR = new CfnParameter(this, 'VPCCIDR', {
