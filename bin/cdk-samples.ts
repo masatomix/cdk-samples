@@ -7,7 +7,7 @@ import { EC2RoleStack } from "../lib/EC2RoleStack";
 
 const main = () => {
     const app = new cdk.App()
-    const vpcStack = new VPCStack(app, "VPCStack1")
+    const vpcStack = new VPCStack(app, "VPCStack")
     new VPCEndpointStack(app, "VPCEndpointStack", {
         vpc: vpcStack.vpc,
         subnets: vpcStack.privateSubnets,
